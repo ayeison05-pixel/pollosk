@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venta de Pollos K</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#240028">
+<link rel="icon" href="icon-192.png">
+<style>
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: "Poppins", sans-serif;
+    background: lavenderblush;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: #222;
+    overflow-x: hidden;
+  }
+  header {
+    background: lavenderblush;
+    width: fit-content;
+    justify-content: center;
+    text-align: center;
+    padding: 6px 8px;
+    margin: 15px auto;
+    color: #240028;
+    font-size: 45px;
+    font-weight: bold;
+    position: relative;
+    border-radius: 14px;
+    text-shadow: 0.5px 3px 2.5px rgba(0,0,0,0.5);
+    
+  }
+  main {
+    
+    padding: 15px;
+  }
+  section {
+    background: snow;
+    margin: 15px auto;
+    padding: 15px;
+    border-radius: 12px;
+    max-width: 420px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  input, button {
+    margin: 6px;
+    padding: 10px;
+    width: 100%;
+    font-size: 1em;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  button {
+    background: #d8bfd8;
+    color: #240028;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover, button:focus {
+    background: #AC7DC1;
+    color: snow;
+    outline: none;
+  }
+  button:active {
+    transform: scale(0.98);
+  }
+  .btn-selected {
+    background: #AC7DC1 !important;
+    color: snow;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modal {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    text-align: left;
+    position: relative;
+  }
+  .modal h3 {
+    margin: 0 0 15px 0;
+    color: #008080;
+    font-size: 1.3em;
+  }
+  .modal p {
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-actions button {
+    flex: 1;
+    padding: 12px;
+    font-size: 1em;
+  }
+  .btn-cancel {
+    background: #ccc;
+    color: #333;
+  }
+  .btn-cancel:hover { background: #bbb; }
+
+  #recibo, #historial, #resumen-contenido, #deudas-lista, #pagados-lista, #recordatorios, #inventario-preview, #resumen-final {
+    text-align: left;
+    background: #fff;
+    padding: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  }
+  .hidden { display: none; }
+  h3 { 
+    margin-bottom: 12px; 
+    color: #240028; 
+    font-size: 30px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.95em;
+  }
+  th, td {
+    padding: 10px 6px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    color: #240028;
+    text-shadow: 0.5 px 2px 2px rgba(0,0,0,0.5);
+    font-weight: 600;
+  }
+  .btn-small {
+    padding: 6px 10px;
+    font-size: 0.85em;
+    margin-left: 4px;
+    min-width: 90px;
+  }
+
+  /* ✅ POLLOS: 6 columnas, solo peso */
+  #polloSelectionContainer h4 {
+    margin: 12px 0 8px;
+    color: #240028;
+    font-size: 25px;
+  }
+  #pollo-grid {
+    color: black;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .pollo-item {
+    display: flex;
+    align-items: center;
+    color: #240028;
+    background: #d8bfd8;
+    border-radius: 6px;
+    padding: 6px 4px;
+    font-size: 0.82em;
+    justify-content: center;
+  }
+  .pollo-item input[type="checkbox"] {
+    margin-right: 2px;
+    transform: scale(1.2);
+  }
+
+  /* ✅ Botones de método de pago */
+  .metodo-buttons {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .metodo-btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.9em;
+  }
+  
+  #banner-color {
+  width: 80%;
+  height: 40px; /* o lo que desees: 10px, 30px, etc. */
+  background: #AC7DC1; /* color suave tipo lila/rosado como en tus botones */
+  margin: 0 auto 15px;
+  
+}
+</style>
+</head>
+<body>
+<header id="titulo">Venta de Pollos K</header>
+
+<div id="banner-color"></div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Título</h3>
+    <p id="modal-message">Mensaje</p>
+    <div id="modal-extra"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button id="modal-confirm-btn" onclick="ejecutarAccionModal()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section id="inventario">
+    <h3>Inventario de Pollos</h3>
+    <input type="number" id="peso" placeholder="Peso del pollo (gramos)" step="0.001" min="0.001">
+    <div style="display:flex;gap:8px;justify-content:center;">
+      <button style="width:48%" onclick="agregarPollo()">Agregar al Inventario</button>
+      <button style="width:48%" onclick="verInventario()">Ver Inventario</button>
+    </div>
+  </section>
+
+  <section id="venta">
+    <h3>Registrar Venta</h3>
+    <input type="text" id="cliente" placeholder="Nombre del Cliente">
+    <div id="polloSelectionContainer">
+      <h4>Seleccionar pollos:</h4>
+      <div id="pollo-grid"></div>
+    </div>
+    <input type="number" id="precio" placeholder="Precio por kilo" step="1" min="1">
+    
+    <div class="metodo-buttons">
+      <button class="metodo-btn btn-selected" data-metodo="Efectivo" onclick="seleccionarMetodo('Efectivo', this)">Efectivo</button>
+      <button class="metodo-btn" data-metodo="Nequi" onclick="seleccionarMetodo('Nequi', this)">Nequi</button>
+      <button class="metodo-btn" data-metodo="Fiado" onclick="seleccionarMetodo('Fiado', this)">Fiado</button>
+    </div>
+    
+    <input type="hidden" id="metodoPago" value="Efectivo">
+    
+    <button onclick="venderPollos()">Generar Recibo</button>
+  </section>
+
+  <section>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <button onclick="mostrarHistorial()">Historial</button>
+      <button onclick="mostrarDeudas()">Deudas</button>
+      <button onclick="mostrarPagados()">Pagados</button>
+      <button onclick="mostrarResumen()">Resumen</button>
+      <button onclick="finalizarVenta()">Finalizar</button>
+      <button onclick="enviarRecordatorios()">Recordatorios</button>
+    </div>
+  </section>
+
+  <section id="recibo" class="hidden"></section>
+  <section id="historial" class="hidden"></section>
+  <section id="resumen-contenido" class="hidden"></section>
+  <section id="deudas-lista" class="hidden"></section>
+  <section id="pagados-lista" class="hidden"></section>
+  <section id="recordatorios" class="hidden"></section>
+  <section id="inventario-preview" class="hidden"></section>
+  <section id="resumen-final" class="hidden"></section>
+</main>
+
+<script>
+let inventario = JSON.parse(localStorage.getItem('inventario')) || [];
+let recibos = JSON.parse(localStorage.getItem('recibos')) || [];
+let refCount = recibos.length > 0 
+  ? Math.max(...recibos.map(r => parseInt(r.ref.split('-')[2]))) + 1 
+  : 1;
+
+let accionModal = null;
+
+function guardarDatos() {
+  localStorage.setItem('inventario', JSON.stringify(inventario));
+  localStorage.setItem('recibos', JSON.stringify(recibos));
+}
+
+function ocultarTodasLasSecciones() {
+  ['recibo','historial','resumen-contenido','deudas-lista','pagados-lista','recordatorios','inventario-preview','resumen-final'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+}
+
+function mostrarModal(titulo, mensaje, accion = null, extra = null) {
+  document.getElementById('modal-title').textContent = titulo;
+  document.getElementById('modal-message').textContent = mensaje;
+  const extraEl = document.getElementById('modal-extra');
+  if (extra) {
+    extraEl.innerHTML = extra;
+    extraEl.style.display = 'block';
+  } else {
+    extraEl.style.display = 'none';
+  }
+  accionModal = accion;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function cerrarModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  accionModal = null;
+}
+function ejecutarAccionModal() {
+  if (typeof accionModal === 'function') accionModal();
+  cerrarModal();
+}
+
+// ✅ Selección de método visual
+function seleccionarMetodo(metodo, btn) {
+  document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('btn-selected'));
+  btn.classList.add('btn-selected');
+  const hidden = document.getElementById('metodoPago');
+  hidden.value = (metodo === 'Fiado') ? 'Deuda' : metodo;
+}
+
+// ─── INVENTARIO ───────────────────────────────────────────────────────────────
+function agregarPollo() {
+  const peso = parseFloat(document.getElementById('peso').value);
+  if (!peso || peso <= 0) {
+    mostrarModal('⚠️ Peso inválido', 'Ingrese un peso > 0.');
+    return;
+  }
+  inventario.push({ peso, vendido: false });
+  guardarDatos();
+  document.getElementById('peso').value = '';
+  actualizarPollosSeleccionables();
+  mostrarModal('✅ Éxito', 'Pollo agregado.');
+}
+
+function actualizarPollosSeleccionables() {
+  const container = document.getElementById('pollo-grid');
+  container.innerHTML = '';
+  let hayDisponibles = false;
+  inventario.forEach((p, i) => {
+    if (!p.vendido) {
+      hayDisponibles = true;
+      const div = document.createElement('div');
+      div.className = 'pollo-item';
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" class="pollo-checkbox" data-index="${i}">
+          ${p.peso.toFixed(3)} (g)
+        </label>
+      `;
+      container.appendChild(div);
+    }
+  });
+  if (!hayDisponibles) {
+    container.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888;">No hay pollos.</p>';
+  }
+}
+
+// ─── VENTAS ───────────────────────────────────────────────────────────────────
+function venderPollos() {
+  const cliente = document.getElementById('cliente').value.trim();
+  const precio = parseFloat(document.getElementById('precio').value);
+  const metodo = document.getElementById('metodoPago').value;
+  const checkboxes = document.querySelectorAll('.pollo-checkbox:checked');
+  
+  if (!cliente) {
+    mostrarModal('⚠️ Cliente requerido', 'Ingrese el nombre.');
+    return;
+  }
+  if (!precio || precio < 1) {
+    mostrarModal('⚠️ Precio inválido', 'Precio ≥ 1.');
+    return;
+  }
+  if (checkboxes.length === 0) {
+    mostrarModal('⚠️ Seleccione pollos', 'Elija al menos uno.');
+    return;
+  }
+
+  const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index));
+  let totalGeneral = 0;
+  const pollosVendidos = [];
+
+  for (const i of indices) {
+    const pollo = inventario[i];
+    if (!pollo || pollo.vendido) {
+      mostrarModal('❌ Error', 'Alguno ya fue vendido.');
+      return;
+    }
+    const subtotal = pollo.peso * precio;
+    totalGeneral += subtotal;
+    pollosVendidos.push({ peso: pollo.peso, subtotal });
+    pollo.vendido = true;
+  }
+
+  const ref = `VP-K25-${String(refCount).padStart(4,'0')}`;
+  const fecha = new Date().toLocaleString("es-CO", { timeZone: "America/Caracas", hour12: true });
+  const recibo = {
+    ref,
+    cliente,
+    pollos: pollosVendidos,
+    precioPorKilo: precio,
+    total: totalGeneral,
+    metodo,
+    fecha
+  };
+
+  recibos.push(recibo);
+  refCount++;
+  guardarDatos();
+  mostrarRecibo(recibo);
+  actualizarPollosSeleccionables();
+  document.getElementById('cliente').value = '';
+}
+
+function formatearCOP(valor) {
+  return new Intl.NumberFormat('es-CO', { 
+    style: 'currency', currency: 'COP', minimumFractionDigits: 0 
+  }).format(valor);
+}
+
+// ─── CANVAS: RECORDATORIO FINAL (CORREGIDO) ───────────────────────────────────
+function dibujarRecordatorioCanvas(recibo) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const scale = 3;
+  canvas.width = 440 * scale;
+  canvas.height = 260 * scale;
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 440, 260);
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+
+  // ✅ Fuente monoespaciada tipo factura
+  ctx.font = 'bold 20px "Lucida Console", "Courier New", monospace';
+  ctx.fillText('RECORDATORIO DE PAGO 🔔', 220, 40);
+
+  ctx.font = '16px "Lucida Console", monospace';
+  ctx.textAlign = 'left';
+  let y = 80;
+
+  // • referencia: REF:VP-K25-000X
+  ctx.fillText(`• referencia: REF:${recibo.ref}`, 40, y);
+  y += 30;
+
+  // • NombreCliente
+  ctx.fillText(`• ${recibo.cliente}`, 40, y);
+  y += 30;
+
+  // • MONTO DEUDA: $XX.XXX
+  ctx.fillText(`• MONTO DEUDA: ${formatearCOP(recibo.total)}`, 40, y);
+  y += 24;
+
+  // (N pollos: ...)
+  if (recibo.pollos && recibo.pollos.length > 1) {
+    const pesos = recibo.pollos.map(p => `${p.peso.toFixed(3)} g`).join(' + ');
+    ctx.fillText(`  (${recibo.pollos.length} pollos: ${pesos})`, 40, y);
+    y += 24;
+  }
+
+  // ✅ FIX: Parseo robusto de la fecha (sin NaN)
+  let fechaStr = recibo.fecha;
+  if (fechaStr.includes(',')) {
+    fechaStr = fechaStr.split(',')[0]; // "11/7/2025"
+  } else {
+    fechaStr = fechaStr.split(' ')[0]; // "11/7/2025"
+  }
+  const parts = fechaStr.split('/');
+  let day = parseInt(parts[0], 10);
+  let month = parseInt(parts[1], 10);
+  let year = parseInt(parts[2], 10);
+  if (year < 100) year += 2000;
+
+  const d = new Date(year, month - 1, day);
+  if (isNaN(d.getTime())) {
+    d = new Date();
+    day = d.getDate();
+    month = d.getMonth() + 1;
+    year = d.getFullYear();
+  }
+
+  const dias = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const diaSem = dias[d.getDay()];
+  const dd = String(day).padStart(2, '0');
+  const mm = String(month).padStart(2, '0');
+  const yyyy = year;
+  ctx.fillText(`• ${diaSem} ${dd}/${mm}/${yyyy}`, 40, y);
+  y += 36;
+
+  // 🐔¡¡gracias por su compra!!🐔
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 18px "Lucida Console", monospace';
+  ctx.fillText('🐔¡¡gracias por su compra!!🐔', 220, y);
+
+  return canvas.toDataURL('image/png');
+}
+
+// ─── MOSTRAR RECIBO ───────────────────────────────────────────────────────────
+function mostrarRecibo(r) {
+  ocultarTodasLasSecciones();
+  const div = document.getElementById('recibo');
+  div.classList.remove('hidden');
+
+  let pollosHTML = '';
+  r.pollos.forEach((p, idx) => {
+    pollosHTML += `<p>${p.peso.toFixed(3)} (gramos) × ${formatearCOP(r.precioPorKilo)} = ${formatearCOP(p.subtotal)}</p>`;
+  });
+
+  div.innerHTML = `
+    <h3>Venta de Pollos K</h3>
+    <p><strong>Ref:</strong> ${r.ref}</p>
+    <p><strong>${r.cliente}</strong></p>
+    ${pollosHTML}
+    <p><strong>Total:</strong> ${formatearCOP(r.total)}</p>
+    <p><strong>Método:</strong> ${r.metodo}</p>
+    <h4>¡Gracias por tu compra! 🐔</h4>
+    <button onclick="compartirReciboComoImagen('${r.ref}')">Enviar por WhatsApp</button>
+  `;
+}
+
+function compartirReciboComoImagen(ref) {
+  const r = recibos.find(x => x.ref === ref);
+  if (!r) return;
+
+  const imgUrl = dibujarRecordatorioCanvas(r);
+  const filename = `${r.ref}.png`;
+
+  const link = document.createElement('a');
+  link.href = imgUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  ocultarTodasLasSecciones();
+}
+
+// ─── HISTORIAL, DEUDAS, PAGADOS, RESUMEN ─────────────────────────────────────
+function mostrarHistorial() {
+  ocultarTodasLasSecciones();
+  const div = document.getElementById('historial');
+  div.classList.remove('hidden');
+  
+  if (recibos.length === 0) {
+    div.innerHTML = '<h3>📋 Sin ventas</h3><p>No hay ventas aún.</p>';
+    return;
+  }
+
+  let tabla = `<h3>📋 Historial</h3><table><thead><tr><th>Ref</th><th>Cliente</th><th>Pollos</th><th>Total</th></tr></thead><tbody>`;
+  recibos.forEach(r => {
+    tabla += `<tr><td>${r.ref}</td><td>${r.cliente}</td><td>${r.pollos.length}</td><td>${formatearCOP(r.total)}</td></tr>`;
+  });
+  tabla += '</tbody></table>';
+  div.innerHTML = tabla;
+}
+
+function mostrarDeudas() {
+  ocultarTodasLasSecciones();
+  const deudas = recibos.filter(r => r.metodo === 'Deuda');
+  const div = document.getElementById('deudas-lista');
+  div.classList.remove('hidden');
+  
+  if (deudas.length === 0) {
+    div.innerHTML = '<h3>📝 Sin deudas</h3><p>No hay deudas pendientes.</p>';
+    return;
+  }
+
+  let tabla = `<h3>📝 Deudas</h3><table><thead><tr><th>Ref</th><th>Cliente</th><th>Total</th><th>Acción</th></tr></thead><tbody>`;
+  deudas.forEach(r => {
+    tabla += `<tr><td>${r.ref}</td><td>${r.cliente}</td><td>${formatearCOP(r.total)}</td><td><button class="btn-small" onclick="abrirModalPago('${r.ref}')">Marcar como pagado</button></td></tr>`;
+  });
+  tabla += '</tbody></table>';
+  div.innerHTML = tabla;
+}
+
+function abrirModalPago(ref) {
+  const extraHTML = `
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="metodo-btn btn-selected" id="btn-efectivo" data-metodo="Efectivo" onclick="seleccionarMetodoModal('Efectivo', this)">Efectivo</button>
+      <button class="metodo-btn" id="btn-nequi" data-metodo="Nequi" onclick="seleccionarMetodoModal('Nequi', this)">Nequi</button>
+    </div>
+  `;
+  mostrarModal('✅ ¿Marcar como pagado?', 'Seleccione el método recibido:', () => confirmarPago(ref), extraHTML);
+}
+
+let metodoPagoSeleccionado = 'Efectivo';
+function seleccionarMetodoModal(metodo, btn) {
+  document.querySelectorAll('.metodo-btn').forEach(b => b.classList.remove('btn-selected'));
+  btn.classList.add('btn-selected');
+  metodoPagoSeleccionado = metodo;
+}
+
+function confirmarPago(ref) {
+  const recibo = recibos.find(r => r.ref === ref);
+  if (recibo && recibo.metodo === 'Deuda') {
+    recibo.metodo = metodoPagoSeleccionado;
+    guardarDatos();
+    mostrarModal('✅ Éxito', `Pago registrado como ${metodoPagoSeleccionado}.`);
+    mostrarDeudas();
+  }
+}
+
+function mostrarPagados() {
+  ocultarTodasLasSecciones();
+  const pagados = recibos.filter(r => r.metodo !== 'Deuda');
+  const div = document.getElementById('pagados-lista');
+  div.classList.remove('hidden');
+  
+  if (pagados.length === 0) {
+    div.innerHTML = '<h3>✅ Sin pagos</h3><p>No hay ventas pagadas.</p>';
+    return;
+  }
+
+  let tabla = `<h3>✅ Pagados</h3><table><thead><tr><th>Ref</th><th>Cliente</th><th>Total</th><th>Método</th></tr></thead><tbody>`;
+  pagados.forEach(r => {
+    tabla += `<tr><td>${r.ref}</td><td>${r.cliente}</td><td>${formatearCOP(r.total)}</td><td>${r.metodo}</td></tr>`;
+  });
+  tabla += '</tbody></table>';
+  div.innerHTML = tabla;
+}
+
+function mostrarResumen() {
+  ocultarTodasLasSecciones();
+  const efectivo = recibos.filter(r => r.metodo === 'Efectivo');
+  const nequi = recibos.filter(r => r.metodo === 'Nequi');
+  const deudas = recibos.filter(r => r.metodo === 'Deuda');
+  
+  const totalEfectivo = efectivo.reduce((a, b) => a + b.total, 0);
+  const totalNequi = nequi.reduce((a, b) => a + b.total, 0);
+  const totalDeuda = deudas.reduce((a, b) => a + b.total, 0);
+
+  const div = document.getElementById('resumen-contenido');
+  div.classList.remove('hidden');
+  div.innerHTML = `
+    <h3>📊 Resumen</h3>
+    <p><strong>Efectivo:</strong> ${formatearCOP(totalEfectivo)}</p>
+    <p><strong>Nequi:</strong> ${formatearCOP(totalNequi)}</p>
+    <p><strong>Fiado:</strong> ${formatearCOP(totalDeuda)}</p>
+    <hr>
+    <p><strong>Total recaudado:</strong> ${formatearCOP(totalEfectivo + totalNequi)}</p>
+    <p><strong>Ventas:</strong> ${recibos.length}</p>
+  `;
+}
+
+function enviarRecordatorios() {
+  ocultarTodasLasSecciones();
+  const deudas = recibos.filter(r => r.metodo === 'Deuda');
+  const div = document.getElementById('recordatorios');
+  div.classList.remove('hidden');
+  
+  if (deudas.length === 0) {
+    div.innerHTML = '<h3>🔔 Sin recordatorios</h3><p>No hay deudas.</p>';
+    return;
+  }
+
+  let tabla = `<h3>🔔 Recordatorios</h3><table><thead><tr><th>Ref</th><th>Cliente</th><th>Total</th><th>Acción</th></tr></thead><tbody>`;
+  deudas.forEach(r => {
+    tabla += `<tr><td>${r.ref}</td><td>${r.cliente}</td><td>${formatearCOP(r.total)}</td><td><button class="btn-small" onclick="generarRecordatorio('${r.ref}')">Enviar vía WhatsApp</button></td></tr>`;
+  });
+  tabla += '</tbody></table>';
+  div.innerHTML = tabla;
+}
+
+function generarRecordatorio(ref) {
+  const r = recibos.find(x => x.ref === ref);
+  if (!r) return;
+
+  const imgUrl = dibujarRecordatorioCanvas(r);
+  const filename = `${r.ref}.png`;
+
+  const link = document.createElement('a');
+  link.href = imgUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// ─── FINALIZAR VENTA ──────────────────────────────────────────────────────────
+function finalizarVenta() {
+  const pollosDisponibles = inventario.filter(p => !p.vendido).length;
+  const deudasPendientes = recibos.filter(r => r.metodo === 'Deuda').length;
+
+  if (pollosDisponibles > 0 || deudasPendientes > 0) {
+    let msg = 'No se puede finalizar:\n';
+    if (pollosDisponibles) msg += `• ${pollosDisponibles} pollo(s) sin vender\n`;
+    if (deudasPendientes) msg += `• ${deudasPendientes} fiado(s) pendiente(s)`;
+    mostrarModal('⚠️ Espera', msg);
+    return;
+  }
+
+  if (recibos.length === 0) {
+    mostrarModal('ℹ️ Vacío', 'No hay ventas.');
+    return;
+  }
+
+  mostrarModal('✅ ¿Finalizar?', 'Se borrará todo y se generará resumen.', () => ejecutarFinalizacion());
+}
+
+function ejecutarFinalizacion() {
+  const kilos = recibos.reduce((s, r) => s + r.pollos.reduce((a, p) => a + p.peso, 0), 0);
+  const monto = recibos.reduce((s, r) => s + r.total, 0);
+  const pollos = recibos.reduce((s, r) => s + r.pollos.length, 0);
+
+  recibos = [];
+  refCount = 1;
+  guardarDatos();
+
+  ocultarTodasLasSecciones();
+  const div = document.getElementById('resumen-final');
+  div.classList.remove('hidden');
+  div.innerHTML = `
+    <h3>✅ Venta finalizada</h3>
+    <p><strong>Pollos vendidos:</strong> ${pollos}</p>
+    <p><strong>Kilos:</strong> ${kilos.toFixed(3)} Gramos</p>
+    <p><strong>Total:</strong> ${formatearCOP(monto)}</p>
+    <button onclick="descargarResumenTXT(${kilos}, ${monto}, ${pollos})">Guardar resumen (.txt)</button>
+  `;
+  actualizarPollosSeleccionables();
+}
+
+function descargarResumenTXT(kilos, monto, pollos) {
+  const fecha = new Date().toLocaleString("es-CO", { timeZone: "America/Caracas" });
+  const contenido = `RESUMEN FINAL\nFecha: ${fecha}\nPollos: ${pollos}\nKilos: ${kilos.toFixed(3)} kg\nTotal: ${formatearCOP(monto)}\n¡Gracias! 🐔`;
+  const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `resumen_${new Date().toISOString().slice(0,10)}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarModal('✅ Éxito', 'Resumen descargado.');
+}
+
+function verInventario() {
+  ocultarTodasLasSecciones();
+  const div = document.getElementById('inventario-preview');
+  div.classList.remove('hidden');
+  
+  const restantes = inventario.filter(p => !p.vendido);
+  const vendidos = inventario.filter(p => p.vendido);
+  let html = '<h3>📦 Inventario</h3>';
+
+  if (restantes.length > 0) {
+    html += `<h4>Disponibles (${restantes.length})</h4><ul>`;
+    restantes.forEach(p => {
+      html += `<li>${p.peso.toFixed(3)} kg</li>`;
+    });
+    html += '</ul>';
+  } else {
+    html += '<p>No hay pollos disponibles.</p>';
+  }
+
+  if (vendidos.length > 0) {
+    html += `<h4>Vendidos (${vendidos.length})</h4><ul>`;
+    vendidos.forEach(p => {
+      html += `<li>${p.peso.toFixed(3)} kg</li>`;
+    });
+    html += '</ul>';
+  }
+
+  div.innerHTML = html;
+}
+
+// ─── ✅ BOTÓN OCULTO: 3 TOQUES → BORRAR TODO ─────────────────────────────────
+let toques = 0;
+let timeout;
+
+document.getElementById('titulo').addEventListener('click', function() {
+  toques++;
+  if (toques === 1) {
+    timeout = setTimeout(() => {
+      toques = 0;
+    }, 600);
+  } else if (toques === 3) {
+    clearTimeout(timeout);
+    mostrarModal('🚨 Modo Prueba', '¿Borrar TODO?', () => {
+      inventario = [];
+      recibos = [];
+      refCount = 1;
+      guardarDatos();
+      actualizarPollosSeleccionables();
+      mostrarModal('✅ Éxito', 'Datos borrados.');
+    });
+    toques = 0;
+  }
+});
+
+// ─── INICIALIZACIÓN ───────────────────────────────────────────────────────────
+window.onload = () => {
+  actualizarPollosSeleccionables();
+  ocultarTodasLasSecciones();
+};
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(console.warn);
+  });
+}
+</script>
+</body>
+</html>
