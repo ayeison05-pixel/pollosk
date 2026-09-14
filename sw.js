@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pollos-k-cache-v3'; // ← Solo cambia esto (v1 → v2)
+const CACHE_NAME = 'pollos-k-cache-v4'; // ← Solo cambia esto (v1 → v2)
 const urlsToCache = [
   './index.html',
   './manifest.json',
