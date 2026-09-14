@@ -1,6 +1,6 @@
 ﻿{
-  "name": "Venta de Pollos K",
-  "short_name": "PollosK",
+  "name": "Chicken",
+  "short_name": "Chicken",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#e0f7f7",
